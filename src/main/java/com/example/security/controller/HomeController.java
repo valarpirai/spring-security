@@ -1,6 +1,6 @@
 package com.example.security.controller;
 
-import com.example.security.model.User;
+import com.example.security.model.MyUser;
 import com.example.security.repository.UserRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,7 +22,7 @@ public class HomeController {
     }
 
     @GetMapping("/users")
-    public List<User> users() {
+    public List<MyUser> users() {
         return userRepository.findAll();
     }
 
