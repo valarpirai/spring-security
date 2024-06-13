@@ -1,5 +1,6 @@
 package com.example.security.service;
 
+import com.example.security.model.User;
 import com.example.security.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,7 +16,8 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+//    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return (UserDetails) userRepository.findByUsername(username);
+        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(String.format("USER_NOT_FOUND_MSG", username)));
     }
 }

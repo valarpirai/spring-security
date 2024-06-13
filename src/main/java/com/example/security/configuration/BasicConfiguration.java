@@ -1,27 +1,42 @@
 package com.example.security.configuration;
 
+import com.example.security.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import javax.sql.DataSource;
+
+import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.H2;
 
 @Configuration
+@EnableWebSecurity
 public class BasicConfiguration {
 
     @Value("${enableAuthentication}")
     private boolean enableAuthenticationFlag;
 
     @Bean
-    UserDetailsManager userDetailsManager(PasswordEncoder passwordEncoder) {
+    public UserDetailsManager userDetailsManager(PasswordEncoder passwordEncoder) {
         UserDetails user = User.withUsername("user")
                 .password(passwordEncoder.encode("password"))
                 .roles("USER")
@@ -34,27 +49,29 @@ public class BasicConfiguration {
                 .authorities("USER", "ADMIN")
                 .build();
 
+//        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager();
+//        jdbcUserDetailsManager.createUser(user);
+//        jdbcUserDetailsManager.createUser(admin);
+//        return jdbcUserDetailsManager;
         return new InMemoryUserDetailsManager(user, admin);
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         if(enableAuthenticationFlag) {
             http
                     .csrf(AbstractHttpConfigurer::disable)
-                    .authorizeHttpRequests(request ->
-                            request.requestMatchers("/health").permitAll()
-                    )
-                    .authorizeHttpRequests(request ->
-                            request.requestMatchers("/users").hasAnyAuthority("ADMIN")
-                    )
-                    .authorizeHttpRequests(request -> request
-                            .anyRequest().authenticated())
+                    .authorizeHttpRequests(request -> {
+                        request.requestMatchers("/health").permitAll();
+                        request.requestMatchers("/users").hasAnyAuthority("ADMIN");
+                        request.anyRequest().authenticated();
+                    })
+                    .formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
                     .httpBasic(Customizer.withDefaults());
             return http.build();
         } else {

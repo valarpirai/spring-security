@@ -22,12 +22,13 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-//        if (authenticated()) {
-//            response.setStatus(FORBIDDEN.value());
-//        }
+        if (authenticated(request)) {
+            response.setStatus(FORBIDDEN.value());
+            return;
+        }
         filterChain.doFilter(request, response);
     }
-//
+
 //    private boolean attemptAuthentication(HttpServletRequest request) {
 //        String username = request.getParameter("username");
 //        String password = request.getParameter("password");
@@ -41,8 +42,20 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 //        return authenticationManager.authenticate(authRequest);
 //    }
 
-//    private boolean authenticated(HttpServletRequest request) {
-//        String username = request.getParameter("username");
-//        return true;
-//    }
+    private boolean authenticated(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        if(authorization == null)
+            return false;
+        String[] splitAuth = authorization.split("Basic ");
+        if (splitAuth.length < 2)
+            return false;
+        logger.info("Creds -> " + splitAuth[1]);
+        String decoded = new String(Base64.getDecoder().decode(splitAuth[1]), StandardCharsets.UTF_8);
+        logger.info("Decoded -> " + decoded);
+        String[] splitCred = decoded.split(":");
+        String username = splitCred[0];
+        String password = splitCred[1];
+
+        return true;
+    }
 }
