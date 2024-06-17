@@ -18,7 +18,7 @@ import java.util.Base64;
 
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 
-public class AuthenticationFilter extends OncePerRequestFilter {
+public class ApiAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -46,7 +46,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         String authorization = request.getHeader("Authorization");
         if(authorization == null)
             return false;
-        String[] splitAuth = authorization.split("Basic ");
+        String[] splitAuth = authorization.split("Bearer ");
         if (splitAuth.length < 2)
             return false;
         logger.info("Creds -> " + splitAuth[1]);

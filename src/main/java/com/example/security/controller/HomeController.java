@@ -2,18 +2,29 @@ package com.example.security.controller;
 
 import com.example.security.model.MyUser;
 import com.example.security.repository.UserRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.security.service.JwtService;
+import com.example.security.service.LoginForm;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 public class HomeController {
 
-    private final UserRepository userRepository;
+    @Autowired
+    JwtService jwtService;
 
-    public HomeController(UserRepository userRepository) {
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+
+    public HomeController(UserRepository userRepository, AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
     }
 
     @GetMapping("/")
@@ -30,4 +41,21 @@ public class HomeController {
     public String health() {
         return "OK";
     }
+
+    @PostMapping("/authenticate")
+    public String authenticate(@RequestBody LoginForm loginForm) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginForm.username(),
+                        loginForm.password()
+                )
+        );
+
+        if(authentication.isAuthenticated()) {
+            return jwtService.generateToken((UserDetails) authentication.getPrincipal());
+        }
+        return "null";
+    }
 }
+
+

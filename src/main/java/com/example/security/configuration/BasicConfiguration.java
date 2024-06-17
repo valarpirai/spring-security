@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -71,6 +72,11 @@ public class BasicConfiguration {
     }
 
     @Bean
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(authenticationProvider());
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -81,8 +87,8 @@ public class BasicConfiguration {
             http
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(request -> {
-                        request.requestMatchers("/health").permitAll();
-                        request.requestMatchers("/users").hasAnyAuthority("ADMIN");
+                        request.requestMatchers("/health", "/authenticate").permitAll();
+                        request.requestMatchers("/users").hasAnyRole("ADMIN");
                         request.anyRequest().authenticated();
                     })
                     .formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
