@@ -18,7 +18,7 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        var myUser = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(String.format("USER_NOT_FOUND_MSG" + username)));
+        var myUser = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found " + username));
         return User.builder()
                 .username(myUser.getUsername())
                 .password(myUser.getPassword())

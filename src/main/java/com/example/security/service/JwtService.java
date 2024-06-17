@@ -1,5 +1,6 @@
 package com.example.security.service;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,9 +30,11 @@ public class JwtService {
                 .collect(Collectors.joining()
                 )
         );
+        claims.put("iss", "Spring security app");
 
         return Jwts.builder()
                 .claims(claims)
+                .subject(user.getUsername())
                 .issuedAt(Date.from(Instant.now()))
                 .expiration(Date.from(Instant.now().plusMillis(TTL)))
                 .signWith(getSecretKey())
@@ -43,4 +46,15 @@ public class JwtService {
         return Keys.hmacShaKeyFor(decodedKey);
     }
 
+    public String extractUsername(String jwt) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(jwt)
+                .getPayload();
+        if(claims.getExpiration().after(Date.from(Instant.now()))) {
+            return claims.getSubject();
+        }
+        return null;
+    }
 }

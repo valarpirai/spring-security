@@ -26,6 +26,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.sql.DataSource;
@@ -38,6 +39,9 @@ public class BasicConfiguration {
 
     @Autowired
     UserService userDetailsService;
+
+    @Autowired
+    JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Value("${enableAuthentication}")
     private boolean enableAuthenticationFlag;
@@ -83,6 +87,7 @@ public class BasicConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         if(enableAuthenticationFlag) {
             http
                     .csrf(AbstractHttpConfigurer::disable)
