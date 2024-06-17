@@ -92,7 +92,8 @@ public class BasicConfiguration {
             http
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(request -> {
-                        request.requestMatchers("/health", "/authenticate").permitAll();
+                        request.requestMatchers("/health", "/authenticate",
+                                "/v3/api-docs", "/swagger-ui/**").permitAll();
                         request.requestMatchers("/users").hasAnyRole("ADMIN");
                         request.anyRequest().authenticated();
                     })
