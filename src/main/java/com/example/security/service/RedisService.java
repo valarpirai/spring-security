@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.TimeUnit;
+
 @Service
 public class RedisService {
 
@@ -15,7 +17,7 @@ public class RedisService {
     }
 
     public void set(String key, String value, Long expire) {
-        redisTemplate.opsForValue().set(key, value, expire);
+        redisTemplate.opsForValue().set(key, value, expire, TimeUnit.SECONDS);
     }
 
     public String get(String key) {

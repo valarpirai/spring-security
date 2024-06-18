@@ -25,7 +25,8 @@ public class RedisController {
 
     @GetMapping("/get")
     public String get(@RequestParam("key") String key) {
-        return redisService.get(key);
+        var value = redisService.get(key);
+        return  value == null ? "null" : value;
     }
 
     @DeleteMapping("/delete")
