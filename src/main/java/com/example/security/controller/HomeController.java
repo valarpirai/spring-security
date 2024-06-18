@@ -2,31 +2,18 @@ package com.example.security.controller;
 
 import com.example.security.model.MyUser;
 import com.example.security.repository.UserRepository;
-import com.example.security.service.JwtService;
-import com.example.security.model.LoginForm;
-import com.example.security.service.SessionService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 public class HomeController {
 
-    @Autowired
-    SessionService sessionService;
-
     private final UserRepository userRepository;
-    private final AuthenticationManager authenticationManager;
 
-    public HomeController(UserRepository userRepository, AuthenticationManager authenticationManager) {
+    public HomeController(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.authenticationManager = authenticationManager;
     }
 
     @GetMapping("/")
@@ -42,29 +29,6 @@ public class HomeController {
     @GetMapping("/health")
     public String health() {
         return "OK";
-    }
-
-    @PostMapping("/authenticate")
-    public String authenticate(@RequestBody LoginForm loginForm) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginForm.username(),
-                        loginForm.password()
-                )
-        );
-
-        if(authentication.isAuthenticated()) {
-            return sessionService.createJwtSession((UserDetails) authentication.getPrincipal());
-        } else {
-            throw new UsernameNotFoundException("User not found");
-        }
-    }
-
-    @GetMapping("/api/logout")
-    public String logout(Authentication authentication) {
-        var username = (String) authentication.getPrincipal();
-        sessionService.clearSession(username);
-        return "Logout successful";
     }
 }
 
