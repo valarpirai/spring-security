@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,7 +29,7 @@ public class SessionController {
     private UserService userService;
 
     @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private PasswordEncoder passwordEncoder;
 
 
 
@@ -41,7 +42,7 @@ public class SessionController {
     public MyUser register(@RequestBody RegistrationForm registrationForm) {
         MyUser user = new MyUser();
         user.setUsername(registrationForm.username());
-        user.setPassword(bCryptPasswordEncoder.encode(registrationForm.password()));
+        user.setPassword(passwordEncoder.encode(registrationForm.password()));
         user.setRole(registrationForm.role());
         return userService.createUser(user);
     }

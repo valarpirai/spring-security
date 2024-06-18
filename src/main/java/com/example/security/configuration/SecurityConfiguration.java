@@ -46,21 +46,11 @@ public class SecurityConfiguration {
     @Value("${enableAuthentication}")
     private boolean enableAuthenticationFlag;
 
-//    @Bean
-//    public UserDetailsService userDetailsManager(PasswordEncoder passwordEncoder) {
-//        UserDetails user = User.withUsername("user")
-//                .password(passwordEncoder.encode("password"))
-//                .roles("USER")
-//                .authorities("USER")
-//                .build();
-//
-//        UserDetails admin = User.withUsername("admin")
-//                .password(passwordEncoder.encode("admin"))
-//                .roles("USER", "ADMIN")
-//                .authorities("USER", "ADMIN")
-//                .build();
-//        return new InMemoryUserDetailsManager(user, admin);
-//    }
+    private final String[] PUBLIC_MATCHERS = {
+            "/health",
+            "/api/register", "/api/authenticate",
+            "/v3/api-docs", "/swagger-ui/**"
+    };
 
     @Bean
     UserDetailsService userDetailsService() {
@@ -86,20 +76,13 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         if(enableAuthenticationFlag) {
             http
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(request -> {
-                        request.requestMatchers("/health",
-                                "/api/register", "/api/authenticate",
-                                "/v3/api-docs", "/swagger-ui/**").permitAll();
+                        request.requestMatchers(PUBLIC_MATCHERS).permitAll();
                         request.requestMatchers("/users").hasAnyRole("ADMIN");
                         request.anyRequest().authenticated();
                     })
