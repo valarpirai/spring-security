@@ -3,7 +3,8 @@ package com.example.security.controller;
 import com.example.security.model.MyUser;
 import com.example.security.repository.UserRepository;
 import com.example.security.service.JwtService;
-import com.example.security.service.LoginForm;
+import com.example.security.model.LoginForm;
+import com.example.security.service.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,7 +19,7 @@ import java.util.List;
 public class HomeController {
 
     @Autowired
-    JwtService jwtService;
+    SessionService sessionService;
 
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
@@ -53,7 +54,7 @@ public class HomeController {
         );
 
         if(authentication.isAuthenticated()) {
-            return jwtService.generateToken((UserDetails) authentication.getPrincipal());
+            return sessionService.createJwtSession((UserDetails) authentication.getPrincipal());
         } else {
             throw new UsernameNotFoundException("User not found");
         }

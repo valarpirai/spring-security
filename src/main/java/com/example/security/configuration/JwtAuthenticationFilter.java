@@ -1,6 +1,7 @@
 package com.example.security.configuration;
 
 import com.example.security.service.JwtService;
+import com.example.security.service.SessionService;
 import com.example.security.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,7 +28,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 @Configuration
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
-    JwtService jwtService;
+    SessionService sessionService;
 
     @Autowired
     UserService userService;
@@ -43,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String jwt = authHeader.substring(7);
-        String username = jwtService.extractUsername(jwt);
+        String username = sessionService.extractUsername(jwt);
         logger.info("Username: " + username);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userService.loadUserByUsername(username);

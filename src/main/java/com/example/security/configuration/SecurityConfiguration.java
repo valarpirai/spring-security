@@ -35,7 +35,7 @@ import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.
 
 @Configuration
 @EnableWebSecurity
-public class BasicConfiguration {
+public class SecurityConfiguration {
 
     @Autowired
     UserService userDetailsService;

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Service
 public class JwtService {
     private final static String SECRET = "91FDFC3EB9EAF3E78C12EE0169A2866A8ED0B595A4F9F1EDF7CF9DEDD37771CBD44886483C5F6C69701D56C0E67390B84D3D763E304538FC4FB3D0662211668B";
-    private final static long TTL = TimeUnit.MINUTES.toMillis(30);
+    final static long SESSION_TTL = TimeUnit.MINUTES.toSeconds(30);
 
     public String generateToken(UserDetails user) {
         Map<String, Object> claims = new HashMap<>();
@@ -36,7 +36,7 @@ public class JwtService {
                 .claims(claims)
                 .subject(user.getUsername())
                 .issuedAt(Date.from(Instant.now()))
-                .expiration(Date.from(Instant.now().plusMillis(TTL)))
+                .expiration(Date.from(Instant.now().plusSeconds(SESSION_TTL)))
                 .signWith(getSecretKey())
                 .compact();
     }
