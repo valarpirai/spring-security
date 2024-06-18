@@ -86,13 +86,19 @@ public class SecurityConfiguration {
     }
 
     @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         if(enableAuthenticationFlag) {
             http
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(request -> {
-                        request.requestMatchers("/health", "/authenticate",
+                        request.requestMatchers("/health",
+                                "/api/register", "/api/authenticate",
                                 "/v3/api-docs", "/swagger-ui/**").permitAll();
                         request.requestMatchers("/users").hasAnyRole("ADMIN");
                         request.anyRequest().authenticated();
