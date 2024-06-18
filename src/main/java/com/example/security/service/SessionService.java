@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class SessionService {
-    final static long SESSION_TTL = TimeUnit.MINUTES.toSeconds(1);
+    final static long SESSION_TTL = TimeUnit.MINUTES.toSeconds(30);
 
     @Autowired
     JwtService jwtService;
@@ -34,5 +34,9 @@ public class SessionService {
 
     private String sessionKey(String username) {
         return "session:" + username;
+    }
+
+    public void clearSession(String username) {
+        redisService.del(sessionKey(username));
     }
 }

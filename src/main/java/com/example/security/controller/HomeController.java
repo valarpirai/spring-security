@@ -59,6 +59,13 @@ public class HomeController {
             throw new UsernameNotFoundException("User not found");
         }
     }
+
+    @GetMapping("/api/logout")
+    public String logout(Authentication authentication) {
+        var username = (String) authentication.getPrincipal();
+        sessionService.clearSession(username);
+        return "Logout successful";
+    }
 }
 
 
